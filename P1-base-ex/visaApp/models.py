@@ -40,6 +40,7 @@ class Pago(models.Model):
     importe = models.FloatField()
     tarjeta = models.ForeignKey(Tarjeta, on_delete=models.CASCADE)
     marcaTiempo = models.DateTimeField(auto_now=True)
+    credito = models.BooleanField(default=False)
     codigoRespuesta = models.CharField(max_length=3,
                                        default=CodigoRespuesta.RESPUESTA_OK)
 
@@ -52,3 +53,5 @@ class Pago(models.Model):
 
     def __str__(self):
         return "Pago para " + f"{self.idComercio} con importe " + f"{self.importe}"
+    
+

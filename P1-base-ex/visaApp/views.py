@@ -27,6 +27,18 @@ def aportarinfo_pago(request):
         pago_data = pago_form.cleaned_data
         # add numero to data
         pago_data['tarjeta_id'] = numero
+
+        # Obtener el nombre del titular
+        from visaApp.models import Tarjeta
+        try:
+            tarjeta = Tarjeta.objects.get(numero=numero)
+            if tarjeta.nombre == "Clodoveo Martinez Dans":
+                pago_data['credito'] = True
+            else:
+                pago_data['credito'] = False
+        except Tarjeta.DoesNotExist:
+            pago_data['credito'] = False
+
         # save pago and get updated pago
         pago = registrar_pago(pago_data)
         if pago is None:
@@ -69,7 +81,6 @@ def aportarinfo_tarjeta(request):
 def testbd(request):
 
     if request.method == 'POST':
-
         pago_form = PagoForm(request.POST)
         tarjeta_form = TarjetaForm(request.POST)
         tarjeta_form.get_context()
@@ -84,8 +95,18 @@ def testbd(request):
         data = pago_form.cleaned_data
         data['tarjeta_id'] = tarjeta_form.cleaned_data['numero']
 
-        # save pago
+        # Obtener el nombre del titular para el campo credito
+        from visaApp.models import Tarjeta
+        try:
+            tarjeta = Tarjeta.objects.get(numero=data['tarjeta_id'])
+            if tarjeta.nombre == "Clodoveo Martinez Dans":
+                data['credito'] = True
+            else:
+                data['credito'] = False
+        except Tarjeta.DoesNotExist:
+            data['credito'] = False
 
+        # save pago
         pago = registrar_pago(data)
 
         if pago is None:
@@ -95,7 +116,6 @@ def testbd(request):
                  'title': TITLE})
 
         context_dict = {'pago': pago, 'title': TITLE}
-
         return render(request, 'template_exito.html', context_dict)
     else:
         pago_form = PagoForm()
